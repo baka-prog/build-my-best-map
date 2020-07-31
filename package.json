@@ -1,0 +1,22 @@
+{
+  "name": "build-my-best-map",
+  "version": "0.0.1",
+  "description": "通过简单的控制台指令来增强建筑师的效率",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"需要在Box3控制台中使用\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shyfcka/build-my-best-map.git"
+  },
+  "keywords": [
+    "box3"
+  ],
+  "author": "shyfcka",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shyfcka/build-my-best-map/issues"
+  },
+  "homepage": "https://github.com/shyfcka/build-my-best-map#readme"
+}
