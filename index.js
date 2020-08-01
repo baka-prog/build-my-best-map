@@ -38,7 +38,7 @@
         }
       },
     },
-    fp2: { //! 和fp1大同小异
+    fp2: { //? 和fp1大同小异
       set: (val) => {
         if (val && typeof val == "string") {
           errorText = "";
@@ -101,74 +101,79 @@
         }
       },
     },
-    fdone: {
-      get: () => {
-        errorText = "";
-        if (!fillData.p1 || !fillData.p2 || !fillData.voxel) {
-          errorText = "填充信息不完整";
+    fdone: { // 用于确认的变量
+      get: () => { // 设置getter
+        errorText = ""; //* 重置错误信息
+        if (!fillData.p1 || !fillData.p2 || !fillData.voxel) { // 如果填充信息不足
+          errorText = "填充信息不完整"; //* 提示错误
         }
-        if (!fillData.preview) {
+        else if (!fillData.preview) { // 如果不是预览模式
           fillData.backUp = []; //* 重置备份数组
-          fillData.preview = true;
+          fillData.preview = true; //* 开始预览
+
+          //* 计算最高点和最低点的XYZ坐标
           let minX = Math.min(fillData.p2.x, fillData.p1.x);
           let maxX = Math.max(fillData.p2.x, fillData.p1.x);
           let minY = Math.min(fillData.p2.y, fillData.p1.y);
           let maxY = Math.max(fillData.p2.y, fillData.p1.y);
           let minZ = Math.min(fillData.p2.z, fillData.p1.z);
           let maxZ = Math.max(fillData.p2.z, fillData.p1.z);
+
+          //* 使用for循环填充
           for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
               for (let z = minZ; z <= maxZ; z++) {
-                fillData.backUp.push(voxels.getVoxel(x, y, z));
-                voxels.setVoxel(x, y, z, fillData.voxel);
+                fillData.backUp.push(voxels.getVoxel(x, y, z)); //* 按照顺序将方块ID放入备份数组
+                voxels.setVoxel(x, y, z, fillData.voxel); //* 设置方块
               }
             }
           }
-        } else {
-          fillData.p1 = fillData.p2 = fillData.p3 = fillData.voxel = null;
-          fillData.preview = false;
-          buildMode = "none";
+        } else { // 否则,也就是确认填充
+          fillData.p1 = fillData.p2 = fillData.p3 = fillData.voxel = null; //* 重置填充数据
+          fillData.preview = false; //* 重置预览状态
+          buildMode = "none"; //* 重置功能模式
         }
       },
     },
   });
-  world.onTick(() => {
-    consoleText = ["---------"];
-    if (buildMode == "fill") {
-      consoleText.push("填充模式:");
+  world.onTick(() => { // Tick事件,用于控制台提示信息
+    //? 由于Box3是每Tick给用户同步一次数据,所以写进Tick中可以减少文字的闪烁
+    consoleText = ["---------"]; //* 重置信息数组
+    if (buildMode == "fill") { // 如果是填充模式
+      consoleText.push("填充模式:"); //* 添加一行提示
       consoleText.push(
         fillData.p1
           ? `  对角点1: <${fillData.p1.x},${fillData.p1.y},${fillData.p1.z}>`
           : "  对角点1: <未选择>"
-      );
+      ); //* 添加一行对角点提示
       consoleText.push(
         fillData.p2
           ? `  对角点2: <${fillData.p2.x},${fillData.p2.y},${fillData.p2.z}>`
           : "  对角点2: <未选择>"
-      );
+      ); //* 添加一行对角点提示
       consoleText.push(
         fillData.voxel
           ? `  填充方块: ${voxels.name(fillData.voxel)} (${fillData.voxel})`
           : `  填充方块: <未选择>`
-      );
-      if (!fillData.p1 || !fillData.p2 || !fillData.voxel) {
+      ); //* 添加一行填充方块提示
+      if (!fillData.p1 || !fillData.p2 || !fillData.voxel) { // 如果信息没有填完
         consoleText.push(
           "提示:\n  通过设置变量fp1 和 fp2 来设置对角点\n  通过设置变量fv 来指定填充使用的方块"
         );
+      } //* 添加一行操作提示
+      if (fillData.p1 && fillData.p2 && fillData.voxel && !fillData.preview) { // 如果填完了信息,并且没有预览
+        consoleText.push("提示:\n  输入fdone进行填充预览"); //* 添加一行操作提示
       }
-      if (fillData.p1 && fillData.p2 && fillData.voxel && !fillData.preview) {
-        consoleText.push("提示:\n  输入fdone进行填充预览");
+      if (fillData.preview) { // 如果正在预览
+        consoleText.push("提示:\n 再次输入fdone确认填充\n输入fno撤销操作"); //* 添加一行操作提示
       }
-      if (fillData.preview) {
-        consoleText.push("提示:\n 再次输入fdone确认填充\n输入fno撤销操作");
-      }
-    } else {
-      consoleText.push("未选择模式,\n输入fill选择填充模式");
+    } else { //否则,也就是没有选择功能模式
+      consoleText.push("未选择模式,\n输入fill选择填充模式"); //* 添加一行操作提示
     }
-    consoleText.push("---------");
-    let finalText = consoleText.join("\n");
-    console.clear();
-    console.log(finalText);
-    console.error(errorText);
+    consoleText.push("---------"); //* 添加最后的分割线
+    let finalText = consoleText.join("\n"); //* 将文本数组合并
+    console.clear(); //* 先清空控制台
+    console.log(finalText); //* 立即写入文本
+    console.error(errorText); //* 用红色文本显示错误信息
   });
 })();
